@@ -37,6 +37,11 @@ public class BurgerTest {
     public  void testAddIngredientToBurger() {
         burger.addIngredient(ingredientFirst);
         assertTrue(burger.ingredients.contains(ingredientFirst));
+    }
+
+    @Test
+    public  void testCheckCountIngredientInBurgerAfterAdding() {
+        burger.addIngredient(ingredientFirst);
         assertEquals("В наборе ингредиентов больше, чем было добавлено",1,burger.ingredients.size());
     }
 
@@ -48,11 +53,18 @@ public class BurgerTest {
     }
 
     @Test
-    public void testMoveIngredientInBurger() {
+    public void testMoveFirstIngredientInBurger() {
+        burger.addIngredient(ingredientFirst);
+        burger.addIngredient(ingredientSecond);
+        burger.moveIngredient(1,0);
+        assertEquals("Ингредиент не перемещен",ingredientFirst,burger.ingredients.get(1));
+    }
+
+    @Test
+    public void testMoveSecondIngredientInBurger() {
         burger.addIngredient(ingredientFirst);
         burger.addIngredient(ingredientSecond);
         burger.moveIngredient(1,0);
         assertEquals("Ингредиент не перемещен", ingredientSecond,burger.ingredients.get(0));
-        assertEquals("Ингредиент не перемещен",ingredientFirst,burger.ingredients.get(1));
     }
 }
