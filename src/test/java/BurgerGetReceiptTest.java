@@ -1,56 +1,72 @@
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import praktikum.Bun;
 import praktikum.Burger;
 import praktikum.Ingredient;
 import praktikum.IngredientType;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
 public class BurgerGetReceiptTest {
-        private Bun bun;
         private Ingredient[] ingredients;
         private String expectedReceipt;
+        private String bunName;
+        private float bunPrice;
 
-        public BurgerGetReceiptTest(Bun bun, Ingredient[] ingredients, String expectedReceipt) {
-            this.bun = bun;
+
+        public BurgerGetReceiptTest(String bunName, float bunPrice,  Ingredient[] ingredients, String expectedReceipt) {
+            this.bunName = bunName;
+            this.bunPrice = bunPrice;
             this.ingredients = ingredients;
             this. expectedReceipt = expectedReceipt;
         }
 
-    @Parameterized.Parameters(name ="Bun, Ingredient, expectedReceipt")
+    @Before
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Mock
+    private Bun bun;
+
+    @Parameterized.Parameters(name ="BunName, Bunprice, Ingredient [], expectedReceipt")
     public static Object [][] data() {
             return new Object[][] {
-                    {new Bun("black bun", 100f),
-                         new Ingredient[]{
-                            new Ingredient(IngredientType.FILLING, "cutlet", 100f),
-                            new Ingredient(IngredientType.SAUCE, "hot sauce", 100f)},
+                    {"black bun", 100f,
+                            new Ingredient[]{
+                                    makeMockIngredient(IngredientType.FILLING, "cutlet", 100f),
+                                    makeMockIngredient(IngredientType.SAUCE, "hot sauce", 100f)},
                             "(==== black bun ====)"+ System.lineSeparator() +
                             "= filling cutlet =" + System.lineSeparator() +
                             "= sauce hot sauce =" + System.lineSeparator() +
                             "(==== black bun ====)" + System.lineSeparator() +
                                     System.lineSeparator() +
                             "Price: 400,000000" + System.lineSeparator()}, //проверка бургера с булочкой с соусом и начинкой
-                    {new Bun("black bun", 100f),
-                         new Ingredient[]{
-                            new Ingredient(IngredientType.SAUCE, "hot sauce", 100f),
-                            new Ingredient(IngredientType.SAUCE, "sour cream", 200f)},
+                    {"black bun", 100f,
+                            new Ingredient[]{
+                                    makeMockIngredient(IngredientType.SAUCE, "hot sauce", 100f),
+                                    makeMockIngredient(IngredientType.SAUCE, "sour cream", 200f)},
                             "(==== black bun ====)" + System.lineSeparator() +
                             "= sauce hot sauce =" + System.lineSeparator() +
                             "= sauce sour cream =" + System.lineSeparator() +
                             "(==== black bun ====)" + System.lineSeparator() +
                                     System.lineSeparator() +
                             "Price: 500,000000" + System.lineSeparator()}, //проверка бургера с булочкой и двумя соусами
-                    {new Bun("black bun", 100f),
-                         new Ingredient[]{new Ingredient(IngredientType.FILLING, "cutlet", 100f)},
+                    {"black bun", 100f,
+                            new Ingredient[]{
+                                    makeMockIngredient(IngredientType.FILLING, "cutlet", 100f)},
                             "(==== black bun ====)"+ System.lineSeparator() +
                             "= filling cutlet ="+ System.lineSeparator() +
                             "(==== black bun ====)"+ System.lineSeparator() +
                                     System.lineSeparator() +
                             "Price: 300,000000" + System.lineSeparator()}, //проверка бургера с булочкой с начинкой
-                    {new Bun("black bun", 100f),
-                            new Ingredient[]{},
+                    {"black bun", 100f, new Ingredient[]{},
                             "(==== black bun ====)"+ System.lineSeparator() +
                             "(==== black bun ====)"+ System.lineSeparator() +
                                     System.lineSeparator() +
@@ -58,18 +74,24 @@ public class BurgerGetReceiptTest {
             };
     }
 
+    private static Ingredient makeMockIngredient (IngredientType type, String name, float price) {
+        Ingredient ingredient = Mockito.mock(Ingredient.class);
+        when(ingredient.getType()).thenReturn(type);
+        when(ingredient.getName()).thenReturn(name);
+        when(ingredient.getPrice()).thenReturn(price);
+        return ingredient;
+    }
+
     @Test
     public void testGetReceiptForBurger() {
-            Burger burger = new Burger();
-            if (bun != null) {
-                burger.setBuns(bun);
-            }
+        when(bun.getName()).thenReturn(bunName);
+        when(bun.getPrice()).thenReturn(bunPrice);
+        Burger burger = new Burger();
+        burger.setBuns(bun);
             for (Ingredient ingredient:ingredients) {
                 burger.addIngredient(ingredient);
     }
     String actualReceipt = burger.getReceipt();
-        System.out.println("Expected:\n" + expectedReceipt);
-        System.out.println("Actual:\n" + actualReceipt);
     assertEquals(expectedReceipt,actualReceipt);
     }
 
